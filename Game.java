@@ -35,7 +35,7 @@ public class Game
     private void createRooms()
     {
         Room mondstadt, village, dragonspine, liyue,
-             toInazumaOcean, inazuma, theChasm, sumeru,
+             toInazumaOcean, inazuma, theChasm, theChasmCave, sumeru,
              desert, toFontaineOcean, fontaine;
       
         // create the rooms
@@ -46,6 +46,7 @@ public class Game
         toInazumaOcean = new Room("in the ocean that's located at the South of Liyue and North of Inazuma");
         inazuma = new Room("in Inazuma");
         theChasm = new Room("in The Chasm that's located at the North of Liyue");
+        theChasmCave = new Room("in the cave below The Chasm");
         sumeru = new Room("in Sumeru that's located at the West of The Chasm");
         desert = new Room("in the Desert that's located at the West of Sumeru");
         toFontaineOcean = new Room("in the ocean that's located at the North of the Desert and South of Fontaine"); 
@@ -64,6 +65,11 @@ public class Game
         desert.setExits(toFontaineOcean, sumeru, null, null);
         toFontaineOcean.setExits(fontaine, null, desert, null);
         fontaine.setExits(null, null, toFontaineOcean, null);
+
+        // upstair and downstairs
+        theChasm.setExit("down", theChasmCave);
+        theChasmCave.setExit("up", theChasm);
+
         
 
         currentRoom = mondstadt;  // start game outside
@@ -97,21 +103,7 @@ public class Game
         System.out.println("World of Zuul is a new, incredibly boring adventure game.");
         System.out.println("Type 'help' if you need help.");
         System.out.println();
-        System.out.println("You are " + currentRoom.getDescription());
-        System.out.print("You can go: ");
-        if(currentRoom.northExit != null) {
-            System.out.print("north ");
-        }
-        if(currentRoom.eastExit != null) {
-            System.out.print("east ");
-        }
-        if(currentRoom.southExit != null) {
-            System.out.print("south ");
-        }
-        if(currentRoom.westExit != null) {
-            System.out.print("west ");
-        }
-        System.out.println();
+        printLocationInfo();
     }
 
     /**
@@ -174,40 +166,24 @@ public class Game
 
         // Try to leave current room.
         Room nextRoom = null;
-        if(direction.equals("north")) {
-            nextRoom = currentRoom.northExit;
-        }
-        if(direction.equals("east")) {
-            nextRoom = currentRoom.eastExit;
-        }
-        if(direction.equals("south")) {
-            nextRoom = currentRoom.southExit;
-        }
-        if(direction.equals("west")) {
-            nextRoom = currentRoom.westExit;
-        }
+        nextRoom = currentRoom.getExit(direction);
 
         if (nextRoom == null) {
             System.out.println("There is no door!");
         }
         else {
             currentRoom = nextRoom;
-            System.out.println("You are " + currentRoom.getDescription());
-            System.out.print("Exits: ");
-            if(currentRoom.northExit != null) {
-                System.out.print("north ");
-            }
-            if(currentRoom.eastExit != null) {
-                System.out.print("east ");
-            }
-            if(currentRoom.southExit != null) {
-                System.out.print("south ");
-            }
-            if(currentRoom.westExit != null) {
-                System.out.print("west ");
-            }
-            System.out.println();
+            printLocationInfo();
         }
+    }
+
+
+    // print the locations and the exits
+    private void printLocationInfo() {
+        System.out.println("You are " + currentRoom.getDescription());
+        System.out.print("You can go:");
+        System.out.println(currentRoom.getExitString());
+        System.out.println();
     }
 
     /** 
