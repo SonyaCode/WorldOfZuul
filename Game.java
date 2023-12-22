@@ -14,11 +14,12 @@
  * @author  Michael Kölling and David J. Barnes
  * @version 2016.02.29
  */
-
 public class Game 
 {
     private Parser parser;
     private Room currentRoom;
+    private boolean hasKey;
+    private boolean foundTreasure;
         
     /**
      * Create the game and initialise its internal map.
@@ -27,6 +28,8 @@ public class Game
     {
         createRooms();
         parser = new Parser();
+        hasKey = false;
+        foundTreasure = false;
     }
 
     /**
@@ -130,6 +133,19 @@ public class Game
         else if (commandWord.equals("quit")) {
             wantToQuit = quit(command);
         }
+        else if (commandWord.equals("pick") && !(currentRoom.getDescription().equals("in the cave below The Chasm"))) {
+            System.out.println("There is nothing to pick up...");
+        } 
+        else if (commandWord.equals("pick") && (currentRoom.getDescription().equals("in the cave below The Chasm"))) {
+            foundKey(command);
+        } 
+        else if (commandWord.equals("unlock") && !(currentRoom.getDescription().equals("in Fontaine"))) {
+            System.out.println("There is nothing to unlock...");
+        } 
+        else if (commandWord.equals("unlock") && (currentRoom.getDescription().equals("in Fontaine"))) {
+            foundChestBox(command);
+            wantToQuit = foundTreasure;
+        }
 
         return wantToQuit;
     }
@@ -181,9 +197,51 @@ public class Game
     // print the locations and the exits
     private void printLocationInfo() {
         System.out.println("You are " + currentRoom.getDescription());
+
+        // if the player is at the cave below the Chasm or Fontaine, tell them about the key and chest
+        if (currentRoom.getDescription().equals("in the cave below The Chasm")) {
+            System.out.println("You found a mysterious key in the cave! Do you want to pick it up?");
+        } else if (currentRoom.getDescription().equals("in Fontaine")) {
+            System.out.println("You found a chest. There is a lock on it. Do you want to unlock it?");
+        }
+
         System.out.print("You can go:");
         System.out.println(currentRoom.getExitString());
         System.out.println();
+    }
+
+
+    // allows the player to pick up the key or not
+    private void foundKey(Command command) {
+        if (currentRoom.getDescription().equals("in the cave below The Chasm")) {
+            String pickOrNot = command.getCommandWord();
+
+            if (pickOrNot.equalsIgnoreCase("pick")) {
+                hasKey = true;
+                System.out.println("You picked up the key.");
+                System.out.println("Hmmm... What could it be used for?");
+            } else {
+                System.out.println("You left the key there.");
+            }
+            System.out.println();
+        }
+    }
+
+    // allows the player to unlock the chest box or not
+    private void foundChestBox(Command command) {
+        if (currentRoom.getDescription().equals("in Fontaine")) {
+            String unlockOrNot = command.getCommandWord();
+
+            if (unlockOrNot.equalsIgnoreCase("unlock")) {
+                if (hasKey) {
+                    foundTreasure = true;
+                    System.out.println("Woah, there are tons of jewelry and golds! You found the treasure!!!");
+                    System.out.println("CONGRATS!! You won the game!");
+                } else {
+                    System.out.println("You don't have a key :(");
+;                }
+            }
+        }
     }
 
     /** 
